@@ -16,13 +16,13 @@ public:
 
 protected:
 	// Handler for client connections
-	virtual void onClientConnected(int clientSocket);
+	virtual void onClientConnected(int clientSocket) = 0;
 
 	// Handler for client disconnections
-	virtual void onClientDisconnected(int clientSocket);
+	virtual void onClientDisconnected(int clientSocket) = 0;
 
 	// Handler for when a message is received from the client
-	virtual void onMessageReceived(int clientSocket, const char* msg, int length);
+	virtual void onMessageReceived(int clientSocket, const char* msg, int length) = 0;
 
 	// Send a message to a client
 	void sendToClient(int clientSocket, const char* msg);

@@ -11,14 +11,14 @@ void TCPListener::init() {
 	int wsOk = WSAStartup(ver, &wsData);
 	if (wsOk != 0)
 	{
-		//	throw Exceptions::GetException(Exceptions::Exception::BAD_TCP_LISTENER);
+		throw Exceptions::GetException(Exceptions::Exception::BAD_TCP_LISTENER);
 	}
 
 	// Create a socket
 	m_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (m_socket == INVALID_SOCKET)
 	{
-		//throw Exceptions::GetException(Exceptions::Exception::BAD_SOCKET);
+		throw Exceptions::GetException(Exceptions::Exception::BAD_SOCKET);
 	}
 
 	// Bind the ip address and port to a socket
@@ -29,13 +29,13 @@ void TCPListener::init() {
 
 	if (bind(m_socket, (sockaddr*)&hint, sizeof(hint)) == SOCKET_ERROR)
 	{
-		//throw Exceptions::GetException(Exceptions::Exception::SOKCET_ERROR);
+		throw Exceptions::GetException(Exceptions::Exception::SOKCET_ERROR);
 	}
 
 	// Tell Winsock the socket is for listening 
 	if (listen(m_socket, SOMAXCONN) == SOCKET_ERROR)
 	{
-		//throw Exceptions::GetException(Exceptions::Exception::SOKCET_ERROR);
+		throw Exceptions::GetException(Exceptions::Exception::SOKCET_ERROR);
 	}
 
 	// Create the master file descriptor set and zero it
@@ -129,18 +129,6 @@ void TCPListener::run()
 	WSACleanup();
 }
 
-void TCPListener::onClientConnected(int clientSocket)
-{
-}
-
-void TCPListener::onClientDisconnected(int clientSocket)
-{
-}
-
-void TCPListener::onMessageReceived(int clientSocket, const char* msg, int length)
-{
-}
-
 void TCPListener::sendToClient(int clientSocket, const char* msg)
 {
 	int length = strlen(msg);
@@ -149,4 +137,12 @@ void TCPListener::sendToClient(int clientSocket, const char* msg)
 
 void TCPListener::broadcastToClients(int sendingClient, const char* msg, int length)
 {
+	for (int i = 0; i < m_master.fd_count; i++)
+	{
+		SOCKET outSock = m_master.fd_array[i];
+		if (outSock != m_socket && outSock != sendingClient)
+		{
+			sendToClient(outSock, msg);
+		}
+	}
 }
